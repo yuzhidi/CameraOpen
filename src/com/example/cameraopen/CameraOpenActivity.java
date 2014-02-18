@@ -56,7 +56,7 @@ public class CameraOpenActivity extends Activity {
 		// Open the default i.e. the first rear facing camera.
 		mCamera = Camera.open();
 		cameraCurrentlyLocked = defaultCameraId;
-		ShowMethods.main("android.hardware.Camera");
+		DetectMethods.detectMethods("android.hardware.Camera");
 	}
     @Override
     protected void onPause() {
