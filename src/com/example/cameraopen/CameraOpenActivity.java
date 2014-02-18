@@ -1,5 +1,7 @@
 package com.example.cameraopen;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -7,6 +9,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class CameraOpenActivity extends Activity {
@@ -17,6 +21,7 @@ public class CameraOpenActivity extends Activity {
 	// The first rear facing camera
 	int defaultCameraId;
 	TextView mTextView;
+	ListView mListView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +32,9 @@ public class CameraOpenActivity extends Activity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.main);
-		
-		mTextView = (TextView)findViewById(R.id.textview);
+
+		mTextView = (TextView) findViewById(R.id.textview);
+		mListView = (ListView) findViewById(R.id.listview);
 		// Find the total number of cameras available
 		numberOfCameras = Camera.getNumberOfCameras();
 		mTextView.setText(Integer.toString(numberOfCameras));
@@ -56,18 +62,23 @@ public class CameraOpenActivity extends Activity {
 		// Open the default i.e. the first rear facing camera.
 		mCamera = Camera.open();
 		cameraCurrentlyLocked = defaultCameraId;
-		DetectMethods.detectMethods("android.hardware.Camera");
+		List<String> alist = DetectMethods
+				.detectMethods("android.hardware.Camera");
+		ArrayAdapter<String> adt = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, alist);
+		mListView.setAdapter(adt);
+		mListView.setTextFilterEnabled(true);
 	}
-    @Override
-    protected void onPause() {
-        super.onPause();
 
-        // Because the Camera object is a shared resource, it's very
-        // important to release it when the activity is paused.
-        if (mCamera != null) {
-            mCamera.release();
-            mCamera = null;
-        }
-    }
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		// Because the Camera object is a shared resource, it's very
+		// important to release it when the activity is paused.
+		if (mCamera != null) {
+			mCamera.release();
+			mCamera = null;
+		}
+	}
 }
-
