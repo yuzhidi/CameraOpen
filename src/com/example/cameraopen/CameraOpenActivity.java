@@ -65,8 +65,9 @@ public class CameraOpenActivity extends Activity {
         // Open the default i.e. the first rear facing camera.
         mCamera = Camera.open();
         cameraCurrentlyLocked = defaultCameraId;
-        List<String> alist = DetectMethods
-                .detectMethods("android.hardware.Camera");
+        // List<String> alist = DetectMethods
+        // .detectMethods("android.hardware.Camera");
+        List<String> alist = DetectMethods.detectMethods2();
         ArrayAdapter<String> adt = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, alist);
         mListView.setAdapter(adt);
