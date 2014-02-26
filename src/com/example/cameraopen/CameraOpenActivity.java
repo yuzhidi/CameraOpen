@@ -5,7 +5,9 @@ import java.util.List;
 import android.app.Activity;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class CameraOpenActivity extends Activity {
+    public static final String TAG = "CameraOpenActivity";
     Camera mCamera;
     int numberOfCameras;
     int cameraCurrentlyLocked;
@@ -68,6 +71,32 @@ public class CameraOpenActivity extends Activity {
                 android.R.layout.simple_list_item_1, alist);
         mListView.setAdapter(adt);
         mListView.setTextFilterEnabled(true);
+
+        printListString(mCamera.getParameters().getSupportedCaptureMode());
+    }
+
+    static void printListString(List<String> l) {
+        Log.e(TAG, "printListString(" + l + ") ENTER");
+        for (String s : l) {
+            Log.e(TAG, s);
+        }
+        Log.e(TAG, "printListString(" + l + ") EXIT");
+    }
+
+    static void printListCharSequence(CharSequence[] l) {
+        Log.e(TAG, "printListString(" + l + ") ENTER");
+        for (CharSequence s : l) {
+            Log.e(TAG, s.toString());
+        }
+        Log.e(TAG, "printListString(" + l + ") EXIT");
+    }
+
+    static void printListSize(List<Size> l) {
+        Log.e(TAG, "printListString(" + l + ") ENTER");
+        for (Size s : l) {
+            Log.e(TAG, s.width + "*" + s.height);
+        }
+        Log.e(TAG, "printListString(" + l + ") EXIT");
     }
 
     @Override
