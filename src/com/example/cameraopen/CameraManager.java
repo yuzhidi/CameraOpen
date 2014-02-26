@@ -24,23 +24,43 @@ public class CameraManager {
         mCamera = camera;
     }
 
-    /*
-     * define this function private is also ok, then call it in setCamera(); Now
-     * keep the code simple, defined it public and called buy others
+
+    /**
+     * detect camera profile
      */
     public void detectProfile() {
-
+        if(mCamera == null) {
+            return;
+        }
     }
 
-    public boolean isCamptureModeAvilable() {
-        // check KEY_CAMERA_MODE
+    /**
+     * check MTK camera mode API available.
+     * @return 
+     */
+    private boolean isCamptureModeAvilable() {
+        //TODO check KEY_CAMERA_MODE
         return false;
     }
 
+    /**
+     * check MTK camera specific mode available.
+     * @param value: CAPTURE_MODE_NORMAL, CAPTURE_MODE_BEST_SHOT,
+     *        CAPTURE_MODE_EV_BRACKET_SHOT, CAPTURE_MODE_BURST_SHOT,
+     *        CAPTURE_MODE_SMILE_SHOT, CAPTURE_MODE_PANORAMA_SHOT
+     * @return true supported; false not supported.
+     */
     public boolean isCaptureModeSurpported(String value) {
         return false;
     }
 
+    /**
+     * set MTK camera capture mode
+         * @param value: CAPTURE_MODE_NORMAL, CAPTURE_MODE_BEST_SHOT,
+         *        CAPTURE_MODE_EV_BRACKET_SHOT, CAPTURE_MODE_BURST_SHOT,
+         *        CAPTURE_MODE_SMILE_SHOT, CAPTURE_MODE_PANORAMA_SHOT
+     * @return true success; false fail.
+     */
     public boolean setCaptureMode(String value) {
         if (!isCamptureModeAvilable() || !isCaptureModeSurpported(value)) {
             return false;
