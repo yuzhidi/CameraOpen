@@ -13,11 +13,11 @@ import android.util.Log;
 public class DetectMethods {
     public static final String TAG = "DetectMethods";
     private static Pattern p = Pattern.compile("\\w+\\.");
-    HashSet<String> allPreperties = new HashSet<String>();
+    private static List<String> alist = new ArrayList<String>();
 
     public static List<String> detectMethods(String args) {
-        ArrayList<String> alist = new ArrayList<String>();
         String s = null;
+        Log.v(TAG, "*******************detectMethods()*******************");
         alist.add("******detectMethods()*******");
         try {
             Class<?> c = Class.forName(args);
@@ -62,13 +62,19 @@ public class DetectMethods {
         return alist;
     }
 
-    public static List<String> detectMethods2() {
-        ArrayList<String> alist = new ArrayList<String>();
+    public static List<String> detectMethods2(List<String> ls, Class c) {
+        alist = ls;
+        detectMethods2(c);
+        return alist;
+    }
+    public static List<String> detectMethods2(Class c) {
+
         String s = null;
         alist.add("******detectMethods2()*******");
+        Log.v(TAG, "*******************detectMethods2()*******************");
         // try {
         // Class<?> c = Class.forName(args);
-        Class c = android.hardware.Camera.class;
+
         Method[] methods = c.getMethods();
         Log.v(TAG, "======Methods=========");
         for (Method method : methods) {
@@ -80,6 +86,13 @@ public class DetectMethods {
         Field[] fields = c.getFields();
         for (Field field : fields) {
             s = p.matcher(field.toString()).replaceAll("");
+            Log.v(TAG, s);
+            alist.add(s);
+        }
+        Log.v(TAG, "======getDeclaredFields=========");
+        Field[] decfields = c.getDeclaredFields();
+        for (Field decfield : decfields) {
+            s = p.matcher(decfield.toString()).replaceAll("");
             Log.v(TAG, s);
             alist.add(s);
         }
