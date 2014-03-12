@@ -100,9 +100,9 @@ public class CameraOpenActivity extends Activity {
         mListView.setAdapter(adt);
         mListView.setTextFilterEnabled(true);
 
-        printListString(mCamera.getParameters().getSupportedCaptureMode());
+        //printListString(mCamera.getParameters().getSupportedCaptureMode());
 
-        AsuraCamcorderProfile.detectProfile();
+        new AsuraCamcorderProfile();
 
     }
 

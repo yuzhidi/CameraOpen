@@ -10,28 +10,23 @@ public class AsuraCamcorderProfile {
 
     private static final String FIELDS_QUALITY_MTK_1080P = "public static final int QUALITY_MTK_1080P";
     private static final String FIELDS_QUALITY_MTK_FINE = "public static final int QUALITY_MTK_FINE";
-    private static final String FIELDS_QUALITY_MTK_H264_HIGH = "public static final int QUALITY_MTK_H264_HIGH";
     private static final String FIELDS_QUALITY_MTK_HIGH = "public static final int QUALITY_MTK_HIGH";
-    private static final String FIELDS_QUALITY_MTK_LIST_END = "public static final int QUALITY_MTK_LIST_END";
-    private static final String FIELDS_QUALITY_MTK_LIVE_EFFECT = "public static final int QUALITY_MTK_LIVE_EFFECT";
     private static final String FIELDS_QUALITY_MTK_LOW = "public static final int QUALITY_MTK_LOW";
     private static final String FIELDS_QUALITY_MTK_MEDIUM = "public static final int QUALITY_MTK_MEDIUM";
-    private static final String FIELDS_QUALITY_MTK_NIGHT_FINE = "public static final int QUALITY_MTK_NIGHT_FINE";
-    private static final String FIELDS_QUALITY_MTK_NIGHT_HIGH = "public static final int QUALITY_MTK_NIGHT_HIGH";
-    private static final String FIELDS_QUALITY_MTK_NIGHT_LOW = "public static final int QUALITY_MTK_NIGHT_LOW";
-    private static final String FIELDS_QUALITY_MTK_NIGHT_MEDIUM = "public static final int QUALITY_MTK_NIGHT_MEDIUM";
-    private static final String FIELDS_QUALITY_MTK_TIME_LAPSE_LIVE_EFFECT = "public static final int QUALITY_MTK_TIME_LAPSE_LIVE_EFFECT";
+
 
     private static HashSet<String> mProperties = new HashSet<String>();
 
-    // static {
-    // detectProfile();
-    // }
+    // first time call AsuraCamcorderProfile.XXX() will do detectProfile() and
+    // cost 14 - 22 ms
+    static {
+        detectProfile();
+    }
 
     /**
      * detect camera profile
      */
-    public static void detectProfile() {
+    private static void detectProfile() {
         long start = System.currentTimeMillis();
         Log.v(TAG, "detectProfile ENTER," + start);
         DetectProperty.detectMethods(mProperties,
@@ -43,14 +38,14 @@ public class AsuraCamcorderProfile {
     /**
      * Quality level corresponding to the lowest available resolution.
      */
-    public int QUALITY_LOW() {
+    public static int QUALITY_LOW() {
         if (mProperties.contains(FIELDS_QUALITY_MTK_LOW)) {
             return CamcorderProfile.QUALITY_MTK_LOW;
         }
         return CamcorderProfile.QUALITY_LOW;
     }
 
-    public int QUALITY_MTK_MEDIUM() {
+    public static int QUALITY_MTK_MEDIUM() {
         if (mProperties.contains(FIELDS_QUALITY_MTK_MEDIUM)) {
             return CamcorderProfile.QUALITY_MTK_MEDIUM;
         }
@@ -61,31 +56,32 @@ public class AsuraCamcorderProfile {
     /**
      * Quality level corresponding to the highest available resolution.
      */
-    public int QUALITY_HIGH() {
+    public static int QUALITY_HIGH() {
         if (mProperties.contains(FIELDS_QUALITY_MTK_HIGH)) {
             return CamcorderProfile.QUALITY_MTK_HIGH;
         }
         return -1;
     }
 
-    public int QUALITY_MTK_FINE() {
+    public static int QUALITY_MTK_FINE() {
         if (mProperties.contains(FIELDS_QUALITY_MTK_FINE)) {
             return CamcorderProfile.QUALITY_MTK_FINE;
         }
         // as android do NOT have medium, use -1.
         return -1;
     }
+
     /**
      * Quality level corresponding to the qcif (176 x 144) resolution.
      */
-    public int QUALITY_QCIF() {
+    public static int QUALITY_QCIF() {
         return CamcorderProfile.QUALITY_QCIF;
     }
 
     /**
      * Quality level corresponding to the cif (352 x 288) resolution.
      */
-    public int QUALITY_CIF() {
+    public static int QUALITY_CIF() {
         return CamcorderProfile.QUALITY_CIF;
     }
 
@@ -94,14 +90,14 @@ public class AsuraCamcorderProfile {
      * the horizontal resolution for 480p can also be other values, such as 640
      * or 704, instead of 720.(Since: API Level 11)
      */
-    public int QUALITY_480P() {
+    public static int QUALITY_480P() {
         return CamcorderProfile.QUALITY_480P;
     }
 
     /**
      * Quality level corresponding to the 720p (1280 x 720) resolution.
      */
-    public int QUALITY_720P() {
+    public static int QUALITY_720P() {
         return CamcorderProfile.QUALITY_720P;
     }
 
@@ -111,7 +107,7 @@ public class AsuraCamcorderProfile {
      * (used by some vendors to avoid cropping during video playback).(Since:
      * API Level 11)
      */
-    public int QUALITY_1080P() {
+    public static int QUALITY_1080P() {
         if (mProperties.contains(FIELDS_QUALITY_MTK_1080P)) {
             return CamcorderProfile.QUALITY_MTK_1080P;
         }
@@ -121,7 +117,7 @@ public class AsuraCamcorderProfile {
     /**
      * Quality level corresponding to the QVGA (320x240) resolution.
      */
-    public int QUALITY_QVGA() {
+    public static int QUALITY_QVGA() {
         return CamcorderProfile.QUALITY_QVGA;
     }
 }

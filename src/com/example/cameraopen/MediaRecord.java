@@ -1,4 +1,4 @@
-package com.example.cameraopen;
+package com.android.camera;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -9,84 +9,112 @@ import android.util.Log;
 
 public class MediaRecord {
     public static final String TAG = "MediaRecord";
-    private int isPauseRecordSupported; // 0 not checked; 1 not supported;
-                                        // 2 X supported; 3 XS supported;
+    /*
+     * the code has a defect using many static fields.
+     */
+    private static int mIsPauseRecordSupported; // 0 not;1 X supported; 2 XS
+                                                // supported;
+    private static int mIsGetProfileDetect; // 0 not checked; 1 not supported;
+    private static int X_Supported = 1;
+    private static int XS_Supported = 2;
+    // 2 X supported; 3 XS supported;
+    private static Method mMethodGetProfile;
+
     private MediaRecorder mMediaRecorder;
     private boolean mMediaRecoderRecordingPaused = false;
     private Method mMethodPause;
-    private int mIsGetProfileDetect; // 0 not checked; 1 not supported;
-                                     // 2 X supported; 3 XS supported;
-    private Method mMethodGetProfile;
 
-    public CamcorderProfile getCameraProfile(int cameraId, int quality) {
-        Method m = null;
+    public MediaRecord(MediaRecorder mediaRecorder) {
+        mMediaRecorder = mediaRecorder;
+    }
+
+    /**
+     * Returns the camcorder profile for the given camera at the given quality
+     * level.
+     * 
+     * @param cameraId
+     *            ID of the camera
+     * @param quality
+     *            Target quality level for the camcorder profile.
+     */
+    public static CamcorderProfile getCameraProfile(int cameraId, int quality) {
+        // adapt X
+        try {
+            mMethodGetProfile = CamcorderProfile.class.getDeclaredMethod(
+                    "getMtk", int.class, int.class);
+            mMethodGetProfile.setAccessible(true);
+            mIsGetProfileDetect = X_Supported;
+            // getMtk is a static method
+            // public static CamcorderProfile getMtk(int cameraId, int
+            // quality) {
+            Log.v(TAG, "getCameraProfile adapt X");
+        } catch (SecurityException e) {
+            Log.e(TAG, "X getMtk SecurityException");
+        } catch (NoSuchMethodException e) {
+            Log.e(TAG, "X getMtk NoSuchMethodException");
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "X getMtk IllegalArgumentException");
+        }
         if (mIsGetProfileDetect == 0) {
-            // adapt X
-            try {
-                m = CamcorderProfile.class.getDeclaredMethod("getMtk",
-                        int.class, int.class);
-                m.setAccessible(true);
-                mIsGetProfileDetect = 2;
-                // getMtk is a static method
-                Log.v(TAG, "getCameraProfile adapt x");
-            } catch (SecurityException e) {
-                Log.e(TAG, "getMtk SecurityException");
-            } catch (NoSuchMethodException e) {
-                Log.e(TAG, "getMtk NoSuchMethodException");
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "getMtk IllegalArgumentException");
-            }
-
             // adapt XS
             try {
                 Class<?> c = Class
                         .forName("com.mediatek.camcorder.CamcorderProfileEx");
-                m = c.getDeclaredMethod("getProfile", int.class, int.class);
-                mIsGetProfileDetect = 3;
+                mMethodGetProfile = c.getDeclaredMethod("getProfile",
+                        int.class, int.class);
+                mIsGetProfileDetect = XS_Supported;
                 // getProfile is a static method
-                Log.v(TAG, "getCameraProfile adapt xs");
+                // public static CamcorderProfile getProfile(int cameraId, int
+                // quality) {
+                Log.v(TAG, "getCameraProfile adapt XS");
             } catch (ClassNotFoundException e) {
                 // e.printStackTrace();
             } catch (SecurityException e) {
-                Log.e(TAG, "getProfile SecurityException");
+                Log.e(TAG, "XS getProfile SecurityException");
             } catch (NoSuchMethodException e) {
-                Log.e(TAG, "getProfile NoSuchMethodException");
+                Log.e(TAG, "XS getProfile NoSuchMethodException");
             }
-            mIsGetProfileDetect = 1;
         }
 
         try {
-            if (mIsGetProfileDetect == 2 || mIsGetProfileDetect == 3) {
-                return (CamcorderProfile) m.invoke(null, cameraId, quality);
+            if (mIsGetProfileDetect == X_Supported
+                    || mIsGetProfileDetect == XS_Supported) {
+                Log.v(TAG, "mIsGetProfileDetect:" + mIsGetProfileDetect
+                        + "mMethodGetProfile.invoke:" + cameraId + ","
+                        + quality);
+                return (CamcorderProfile) mMethodGetProfile.invoke(null,
+                        cameraId, quality);
             }
         } catch (IllegalAccessException e) {
-            Log.e(TAG, "getMtk IllegalAccessException");
+            Log.e(TAG, "mMethodGetProfile.invoke IllegalAccessException");
         } catch (InvocationTargetException e) {
-            Log.e(TAG, "getMtk InvocationTargetException");
+            Log.e(TAG, "mMethodGetProfile.invoke InvocationTargetException");
         }
+        Log.v(TAG, "return CamcorderProfile.get()");
+        // TODO add a protected here if the quality is not supported.
         return CamcorderProfile.get(cameraId, quality);
     }
 
-    // if mediaRecord changed, should recheck
+    /**
+     * return camcorder support pause
+     * 
+     * @return
+     */
     public boolean isPauseRecordSupported() {
-        if (isPauseRecordSupported == 1) {
-            return false;
-        }
-        if (isPauseRecordSupported == 2 || isPauseRecordSupported == 3) {
-            return true;
-        }
+        Log.v(TAG, "isPauseRecordSupported ENTER");
         // adapt X
         // mt6589_x_hike/frameworks/base/media/java/android/media/MediaRecorder.java
         // 1083 public void pause() throws IllegalStateException {
         try {
             mMethodPause = android.media.MediaRecorder.class.getDeclaredMethod(
                     "pause", (Class[]) null);
-            isPauseRecordSupported = 2;
+            mIsPauseRecordSupported = X_Supported;
+            Log.v(TAG, "X pause adapt");
             return true;
         } catch (NoSuchMethodException e) {
-            Log.e(TAG, "MediaRecorder NoSuchMethodException ");
+            Log.e(TAG, "X MediaRecorder NoSuchMethodException ");
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "MediaRecorder IllegalArgumentException ");
+            Log.e(TAG, "X MediaRecorder IllegalArgumentException ");
         }
 
         // adapt XS
@@ -96,24 +124,33 @@ public class MediaRecord {
         try {
             Class<?> c = Class.forName("com.mediatek.media.MediaRecorderEx");
             mMethodPause = c.getDeclaredMethod("pause", MediaRecorder.class);
-            isPauseRecordSupported = 3;
+            mIsPauseRecordSupported = XS_Supported;
+            Log.v(TAG, "XS pause adapt");
+            return true;
         } catch (ClassNotFoundException e) {
-            Log.e(TAG, "MediaRecorderEx ClassNotFoundException");
+            Log.e(TAG, "XS MediaRecorderEx ClassNotFoundException");
         } catch (SecurityException e) {
-            Log.e(TAG, "MediaRecorderEx SecurityException");
+            Log.e(TAG, "XS MediaRecorderEx SecurityException");
         } catch (NoSuchMethodException e) {
-            Log.e(TAG, "MediaRecorderEx NoSuchMethodException");
+            Log.e(TAG, "XS MediaRecorderEx NoSuchMethodException");
         }
-        isPauseRecordSupported = 1;
+
+        Log.v(TAG, "isPauseRecordSupported EXIT");
+        mIsPauseRecordSupported = 1;
         return false;
     }
 
+    /**
+     * pause camcoder
+     */
     public void pauseRecord() {
+        Log.v(TAG, "pauseRecord ENTER");
         if (!mMediaRecoderRecordingPaused && isPauseRecordSupported()) {
+            Log.v(TAG, "IsPauseRecordSupported:" + mIsPauseRecordSupported);
             try {
-                if (isPauseRecordSupported == 2) {
-                    mMethodPause.invoke(null, (Object[]) null);
-                } else if (isPauseRecordSupported == 3) {
+                if (mIsPauseRecordSupported == X_Supported) {
+                    mMethodPause.invoke(mMediaRecorder, (Object[]) null);
+                } else if (mIsPauseRecordSupported == XS_Supported) {
                     mMethodPause.invoke(null, mMediaRecorder);
                 }
                 mMediaRecoderRecordingPaused = true;
@@ -124,18 +161,20 @@ public class MediaRecord {
             } catch (InvocationTargetException e) {
 
             }
+            Log.v(TAG, "pauseRecord EXIT");
             return;
         }
     }
 
+    /**
+     * resume camcoder
+     */
     public void resumeRecord() {
+        Log.v(TAG, "resumeRecord ENTER," + mMediaRecoderRecordingPaused);
         if (mMediaRecoderRecordingPaused) {
             mMediaRecorder.start();
             mMediaRecoderRecordingPaused = false;
         }
-    }
-
-    public void setMediaRecorder(MediaRecorder mediaRecorder) {
-        mMediaRecorder = mediaRecorder;
+        Log.v(TAG, "resumeRecord EXIT");
     }
 }
