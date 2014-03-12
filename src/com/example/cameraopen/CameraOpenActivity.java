@@ -14,9 +14,12 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import java.util.HashSet;
 
 public class CameraOpenActivity extends Activity {
     public static final String TAG = "CameraOpenActivity";
+
+    private static final String MTK_METHOD_setBurstShotNum = "public void Camera$setBurstShotNum(int)";
     Camera mCamera;
     int numberOfCameras;
     int cameraCurrentlyLocked;
@@ -67,13 +70,40 @@ public class CameraOpenActivity extends Activity {
         cameraCurrentlyLocked = defaultCameraId;
         // List<String> alist = DetectMethods
         // .detectMethods("android.hardware.Camera");
-        List<String> alist = DetectMethods.detectMethods2();
+        List<String> alist = DetectMethods
+                .detectMethods2(android.hardware.Camera.class);
+
+        alist = DetectMethods.detectMethods2(alist,
+                android.hardware.Camera.Parameters.class);
+        long start = System.currentTimeMillis();
+        Log.v(TAG, "start:" + start);
+        HashSet<String> hashset = DetectProperty
+                .detectMethods(android.hardware.Camera.class);
+        Log.v(TAG,
+                "hashset.contains(addCallbackBuffer):"
+                        + hashset
+                                .contains("public final void addCallbackBuffer(byte[])"));
+        hashset = DetectProperty
+                .detectMethods(android.hardware.Camera.Parameters.class);
+        Log.v(TAG, "hashset.contains(public void Camera$setBurstShotNum(int)):"
+                + hashset.contains("public void Camera$setBurstShotNum(int)"));
+        long end = System.currentTimeMillis();
+        Log.v(TAG, "end - start:" + (end - start));
+
+        // ///////////// test second way start
+        start = System.currentTimeMillis();
+
+        end = System.currentTimeMillis();
+        // ///////////// test second way end
         ArrayAdapter<String> adt = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, alist);
         mListView.setAdapter(adt);
         mListView.setTextFilterEnabled(true);
 
         printListString(mCamera.getParameters().getSupportedCaptureMode());
+
+        AsuraCamcorderProfile.detectProfile();
+
     }
 
     static void printListString(List<String> l) {
